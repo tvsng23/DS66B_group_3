@@ -1,0 +1,11 @@
+# Core analysis and plotting
+numpy>=1.24,<3
+pandas>=2.0,<4
+matplotlib>=3.7,<4
+
+# Machine learning
+scikit-learn>=1.3,<2
+
+# Notebook runtime
+jupyter>=1.0,<2
+ipykernel>=6.25,<7

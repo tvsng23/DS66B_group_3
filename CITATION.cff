@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this student project, please cite the report and acknowledge the UCI dataset."
+title: "Forecasting Daily Product Views of an Online Clothing Store from Clickstream Data"
+version: 1.0.0
+authors:
+  - family-names: Ho
+    given-names: Huyen Trang
+  - family-names: Ta
+    given-names: Van Sang
+  - family-names: Bui
+    given-names: Quang Minh

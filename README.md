@@ -1,114 +1,105 @@
 # Forecasting Daily Product Views of an Online Clothing Store from Clickstream Data
 
-Course project for **Machine Learning**, Group 3, class DS66B, School of Technology, National Economics University (NEU).
+Machine Learning course project, National Economics University (NEU), School of Technology.
+**Class DS66B – Group 3** · Supervisor: Luong Van Thien
 
-> **Repository setup status:** This is the initial project scaffold. The full notebook has intentionally **not** been uploaded. The team will add three separately maintained notebooks, following the responsibilities listed below, so each member's work can be reviewed through Git commits and pull requests.
+We forecast how many times each product of an online clothing store will be viewed **tomorrow**,
+using only information available today. Before that, we re-examine the common `price2`
+classification task on this dataset and show why its high scores are not meaningful.
 
-## Project overview
+## Key results
 
-The project uses the public **Clickstream Data for Online Shopping / e-shop clothing 2008** dataset to forecast the next day's number of views for each product. Views are a measure of attention, not purchases or sales. The intended use is short-horizon online merchandising rather than inventory planning.
-
-The report also re-examines the common `price2` classification task to demonstrate how target leakage and product memorisation can create misleadingly high scores.
-
-## Planned notebook split and team responsibilities
-
-The division below follows the **Team Contributions** section of the report. Notebook filenames are the proposed repository naming convention; members should use these names unless the group agrees on a change.
-
-| Notebook | Owner | Scope from the report |
-|---|---|---|
-| `notebooks/01_data_quality_and_price2.ipynb` | **Ho Huyen Trang** | Notebook Parts 1–3: data loading and quality checks; re-examination of the `price2` classification task. Report Chapters 1–2. |
-| `notebooks/02_product_day_panel_eda_features.ipynb` | **Ta Van Sang** | Notebook Parts 4–5: product–day panel, exploratory data analysis, feature engineering and leakage checks. Report Chapter 3. |
-| `notebooks/03_modeling_tuning_evaluation.ipynb` | **Bui Quang Minh** | Notebook Parts 6–9: models, hyperparameter selection, final evaluation and classification formulation. Report Chapter 4, conclusion and slides. |
-
-The notebooks are not included yet. Before finalising them, agree on how data will pass between notebooks. In particular, document the path and schema of any processed file created by Notebook 1 or 2 and consumed by a later notebook. Generated files belong under `data/processed/` and are ignored by Git by default; regenerate them by running the required earlier notebook(s).
+| Question | Result |
+|---|---|
+| Is classifying `price2` meaningful? | No. Accuracy is 100% with `price` (target leakage), 92.91% without `price` under a random split (memorising 217 products), and 44.1% on unseen products, below the 51.2% majority-class rule. |
+| Best model (selected on validation) | Random Forest, `max_depth=8` |
+| Test MAE / R² (1–12 Aug 2008) | **2.023** views per product per day / **0.711** |
+| Strongest baseline | 14-day average, test MAE 2.126, so the Random Forest is **4.8%** better |
+| Is the improvement reliable? | Not conclusive: the model wins on 7 of 12 test days, and a coin-flip simulation reaches that about 39% of the time. |
+| Leakage stress test | Forgetting `shift(1)` inflates R² from 0.711 to 0.786. |
+| Classification view ("≥ 7 views tomorrow?") | Test F1 0.693 vs 0.682 for a simple rule, so no real gain over regression. |
 
 ## Repository structure
 
-```text
-.
+```
+DS66B_group_3/
 ├── README.md
 ├── requirements.txt
 ├── .gitignore
-├── .gitattributes
-├── CITATION.cff
-├── CONTRIBUTING.md
 ├── data/
-│   ├── README.md
-│   ├── raw/
-│   │   └── e-shop-clothing-2008.csv
-│   └── processed/
-│       └── README.md
-├── docs/
-│   ├── Report_EN_v5_3_optimized.pdf
-│   └── SETUP_VI.md
-└── notebooks/
-    └── README.md
+│   ├── README.md                      # dataset description and references
+│   └── e-shop_clothing_2008.csv       # raw dataset (unmodified)
+├── notebooks/
+│   └── DS66B_group_3.ipynb            # full pipeline, Parts 1–10
+├── report/
+│   └── Report_EN_DS66B_group_3.pdf    # final report
+└── slides/                            # presentation slides
 ```
 
-## Getting started
+## How to run
 
-### 1. Environment
-
-Python 3.10–3.12 is recommended. From the repository root:
-
-**Windows PowerShell**
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-If PowerShell blocks activation, use Command Prompt and run `.venv\Scripts\activate.bat`.
-
-**macOS / Linux**
+Python 3.12 is recommended (the report's results were produced with it).
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
+git clone https://github.com/<owner>/DS66B_group_3.git
+cd DS66B_group_3
+
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+
+jupyter notebook notebooks/DS66B_group_3.ipynb
 ```
 
-### 2. Dataset
+Run all cells from top to bottom. The notebook reads `../data/e-shop_clothing_2008.csv`
+(path relative to the `notebooks/` folder), so start Jupyter as above or from inside `notebooks/`.
+All random procedures use `random_state=42` or `np.random.seed(42)`. With other library versions
+the last decimal of some metrics may change.
 
-The source CSV is stored at `data/raw/e-shop-clothing-2008.csv` and is semicolon-delimited (`;`). Keep the raw file unchanged; apply cleaning and corrections in notebooks or to files under `data/processed/`.
+## Notebook parts and report sections
 
-### 3. Notebooks
+| Notebook part | Content | Report section |
+|---|---|---|
+| Part 1 | Loading the data and first checks | 3.1 |
+| Part 2 | Data quality checks and cleaning | 3.2 |
+| Part 3 | Re-examination of `price2`; choice of problem and algorithms | 3.3, 4.3 |
+| Part 4 | Product–day panel, exploratory analysis, feature engineering | 3.4–3.6 |
+| Part 5 | One-hot encoding and time-based split | 3.7 |
+| Part 6 | Baselines and models, hyperparameters chosen on validation | 3.8, 4.4–4.7 |
+| Part 7 | Refit on train+validation, single test evaluation | 3.9, 4.8 |
+| Part 8 | Result analysis | 3.10, 4.9–4.12 |
+| Part 9 | Classification view | 3.11, 4.13 |
+| Part 10 | Conclusion | Conclusion |
 
-The notebook files will be added by their assigned owners. See `notebooks/README.md` and `CONTRIBUTING.md` for their expected scope and the recommended workflow. Until those files are committed, the analysis cannot be reproduced from this repository alone; the included report provides the current written account of the study.
+Model labels in the notebook (partly in Vietnamese) are matched to the English names used in the report
+in the report's appendix (Table 5.1).
 
-## Current reported findings
+## Method in brief
 
-The supplied report documents the following test-set results. These are report-reported results and should be revalidated against the final split notebooks before submission.
+1. Clean the data: remove the truncated last day (13 Aug) and fix the category of product A18.
+2. Build a complete 217-product × 134-day panel, with true zeros for days without clicks.
+3. Create past-only features within each product (`lag_1`, `lag_7`, `avg_7_days`, `avg_14_days`, `day_of_week`
+   and static product attributes). Every rolling feature is shifted by one day to avoid leakage.
+4. Split by time: Train 15 Apr–15 Jul, Validation 16–31 Jul, Test 1–12 Aug. The test period is used once.
+5. Compare 4 naive baselines with Linear Regression, Ridge, KNN, Decision Tree and Random Forest.
+6. Test a classification formulation (Logistic Regression, Naive Bayes, KNN, Decision Tree, Random Forest).
 
-| Method | Test MAE (views per product per day) | Test R² |
-|---|---:|---:|
-| 14-day average baseline | 2.126 | 0.686 |
-| Linear Regression, all features | 2.078 | 0.701 |
-| Ridge Regression | 2.078 | 0.701 |
-| K-Nearest Neighbours | 2.043 | 0.702 |
-| Decision Tree | 2.053 | 0.701 |
-| **Random Forest** | **2.023** | **0.711** |
+## Team and contributions
 
-According to the report, Random Forest reduces MAE by 4.8% against the strongest baseline, but beats it on only 7 of the 12 test days. The report therefore characterises the improvement as promising but not conclusive.
+| Member | Main tasks | Contribution |
+|---|---|---|
+| Ho Huyen Trang | Data loading and quality checks (Parts 1–2), re-examination of the `price2` approach (Part 3); Chapters 1 and 2 of the report | 33.33% |
+| Ta Van Sang | Product–day table, exploratory analysis and feature engineering (Parts 4–5), leakage checks; Chapter 3 of the report | 33.33% |
+| Bui Quang Minh | Models, hyperparameter selection and evaluation (Parts 6–9), classification view; Chapter 4, conclusion and slides | 33.33% |
 
-## Data source and attribution
+## Repository note
 
-The dataset is available from the [UCI Machine Learning Repository: Clickstream Data for Online Shopping](https://archive.ics.uci.edu/dataset/553/clickstream%2Bdata%2Bfor%2Bonline%2Bshopping), DOI [10.24432/C5QK7X](https://doi.org/10.24432/C5QK7X). UCI lists the dataset under CC BY 4.0. Retain attribution when redistributing it and check UCI's current terms.
+<!-- Fill this in truthfully. Example: -->
+The project code was first developed in <Google Colab / local notebooks> and uploaded to this repository on
+<date>, so the commit history starts from that upload. Later changes (report, slides, documentation) were
+committed by the member who made them.
 
-The English report supplied with this project is stored in `docs/Report_EN_v5_3_optimized.pdf`.
+## Data and references
 
-## Reproducibility and quality rules
-
-- This dataset records product-page views, not purchases.
-- Forecasting features must use only information available before the forecast day. Rolling means must be shifted to prevent target leakage.
-- Keep the forecasting split chronological; do not randomly split product–day rows.
-- Run and review notebooks in dependency order, and record input/output paths between them.
-- The report refers to a notebook named `DS66B_group_3.ipynb`, while the uploaded source notebook was named `EShop_StepByStep_Student_v5.ipynb`. The team should reconcile notebook naming/version references before final submission.
-- The report cover states 30 October 2026. Confirm that date before publishing the final report.
-
-## License
-
-No licence has been chosen for the group's original report and code. The dataset's licence does not automatically apply to the group's original materials. Agree as a group before adding a repository-level `LICENSE` file.
+Dataset: e-shop clothing 2008, UCI Machine Learning Repository (see `data/README.md` for citations).
+The full reference list is in the report.

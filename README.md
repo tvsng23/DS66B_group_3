@@ -67,8 +67,9 @@ DS66B_group_3/
 ├── notebooks/
 │   └── DS66B_group_3.ipynb            # full pipeline, Parts 1–10
 ├── report/
-│   └── Report_EN_DS66B_group_3.pdf    # final report
-└── slides/                            # presentation slides
+│   └── DS66B_group_3.pdf              # final report
+└── slides/                            
+    └── DS66B_group_3.pdf              # presentation slides
 ```
 
 ## Getting started
